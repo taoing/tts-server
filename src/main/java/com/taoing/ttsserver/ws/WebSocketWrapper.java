@@ -74,11 +74,11 @@ public class WebSocketWrapper {
         int pitch = 0;
         // 语速+, 默认 "+0%"
         int rate = 0;
-        // 音量+ 默认 "+0%"
+        // 音量+, 默认 "+0%"
         int volumn = 0;
         String pitchStr = pitch >= 0 ? "+" + pitch + "Hz" : pitch + "Hz";
         String rateStr = rate >= 0 ? "+" + rate + "%" : rate + "%";
-        String volumnStr = volumn >= 0? "+" + volumn + "%" : volumn + "%";
+        String volumnStr = volumn >= 0 ? "+" + volumn + "%" : volumn + "%";
 
         text = "<![CDATA[" + text + "]]>";
 
