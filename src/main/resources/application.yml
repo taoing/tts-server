@@ -1,0 +1,29 @@
+server:
+  port: 9027
+
+spring:
+  application:
+    name: tts-server
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    deserialization:
+      # 允许对象忽略json中不存在的属性
+      fail_on_unknown_properties: false
+
+logging:
+  config: classpath:logback-spring.xml
+
+# 微软edge浏览器tts语音朗读配置
+tts:
+  edge:
+    voice-list-url: https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/voices/list # 微软可用声音tts列表查询url
+    wss-url: wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1 # 语音合成websocket服务
+    trusted-client-token: 6A5AA1D4EAFF4E9FB37E23D68491D6F4 # token
+    voice-name: Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural) # 默认使用的声音tts(微软晓晓)
+    codec: audio-24khz-48kbitrate-mono-mp3 # 声音编码
+    local: zh-CN # 区域
+    sentenceBoundaryEnabled: false # 可以试试true或false的效果
+    wordBoundaryEnabled: false # 可以试试true或false的效果
