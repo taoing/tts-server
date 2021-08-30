@@ -112,6 +112,7 @@ public class WebSocketWrapper {
                 .header("Accept-Encoding", "gzip, deflate, br")
                 .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6")
                 .build();
+        // 可以使用匿名内部类
         WebSocket webSocket = new OkHttpClient().newWebSocket(request, new TTSWebSocketListener());
         webSocket.send(ttsConfig.getSynthesizeConfig());
         return webSocket;
