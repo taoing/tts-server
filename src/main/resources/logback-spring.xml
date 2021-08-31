@@ -43,6 +43,8 @@
         <appender-ref ref="filelog" />
     </root>
 
+    <logger name="com.taoing" level="DEBUG" />
+
     <springProfile name="test">
         <root level="ERROR">
             <appender-ref ref="filelog" />

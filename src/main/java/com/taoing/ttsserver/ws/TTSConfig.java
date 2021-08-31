@@ -36,6 +36,11 @@ public class TTSConfig {
     private String voiceName;
 
     /**
+     * 默认使用的声音tts(微软晓晓简写)
+     */
+    private String voiceShortName;
+
+    /**
      * 声音编码
      */
     private String codec;

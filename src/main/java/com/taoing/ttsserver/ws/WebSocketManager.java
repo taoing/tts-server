@@ -2,6 +2,8 @@ package com.taoing.ttsserver.ws;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.Map;
 /**
  * websocket client 管理
  */
+@Component
 @Getter
 @Setter
 public class WebSocketManager {
@@ -17,9 +20,10 @@ public class WebSocketManager {
      */
     public static final String[] AVAILABLE_CODES = {"xxttsa01", "xxttsa02", "xxttsa03"};
 
+    @Autowired
     private TTSConfig ttsConfig;
 
-    private Map<String, WebSocketWrapper> webSocketMap = new HashMap<>();
+    private Map<String, TTSWebSocket> webSocketMap;
 
     public WebSocketManager() {
         webSocketMap = new HashMap<>();
@@ -28,7 +32,7 @@ public class WebSocketManager {
         }
     }
 
-    public WebSocketWrapper getClient(String code) {
+    public TTSWebSocket getClient(String code) {
         boolean isMatch = false;
         for (String item : AVAILABLE_CODES) {
             if (item.equals(code)) {
@@ -39,11 +43,10 @@ public class WebSocketManager {
         if (!isMatch) {
             return null;
         }
-        WebSocketWrapper wrapper = webSocketMap.get(code);
-        if (wrapper == null) {
-            // TODO
-            wrapper = new WebSocketWrapper(code, ttsConfig);
+        TTSWebSocket webSocket = webSocketMap.get(code);
+        if (webSocket == null) {
+            webSocket = new TTSWebSocket(code, ttsConfig);
         }
-        return wrapper;
+        return webSocket;
     }
 }

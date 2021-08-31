@@ -10,20 +10,23 @@ spring:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
     deserialization:
-      # ÔÊĞí¶ÔÏóºöÂÔjsonÖĞ²»´æÔÚµÄÊôĞÔ
+      # å…è®¸å¯¹è±¡å¿½ç•¥jsonä¸­ä¸å­˜åœ¨çš„å±æ€§
       fail_on_unknown_properties: false
 
 logging:
   config: classpath:logback-spring.xml
 
-# Î¢Èíedgeä¯ÀÀÆ÷ttsÓïÒôÀÊ¶ÁÅäÖÃ
+# å¾®è½¯edgeæµè§ˆå™¨ttsè¯­éŸ³æœ—è¯»é…ç½®
 tts:
   edge:
-    voice-list-url: https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/voices/list # Î¢Èí¿ÉÓÃÉùÒôttsÁĞ±í²éÑ¯url
-    wss-url: wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1 # ÓïÒôºÏ³Éwebsocket·şÎñ
+    # https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/voices/list?trustedclienttoken=6A5AA1D4EAFF4E9FB37E23D68491D6F4
+    # å¯æŸ¥çœ‹å¯ç”¨ttsåˆ—è¡¨
+    voice-list-url: https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/voices/list # å¾®è½¯å¯ç”¨å£°éŸ³ttsåˆ—è¡¨æŸ¥è¯¢url
+    wss-url: wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1 # è¯­éŸ³åˆæˆwebsocketæœåŠ¡
     trusted-client-token: 6A5AA1D4EAFF4E9FB37E23D68491D6F4 # token
-    voice-name: Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural) # Ä¬ÈÏÊ¹ÓÃµÄÉùÒôtts(Î¢ÈíÏşÏş)
-    codec: audio-24khz-48kbitrate-mono-mp3 # ÉùÒô±àÂë
-    local: zh-CN # ÇøÓò
-    sentenceBoundaryEnabled: false # ¿ÉÒÔÊÔÊÔtrue»òfalseµÄĞ§¹û
-    wordBoundaryEnabled: false # ¿ÉÒÔÊÔÊÔtrue»òfalseµÄĞ§¹û
+    voice-name: Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural) # é»˜è®¤ä½¿ç”¨çš„å£°éŸ³tts(å¾®è½¯æ™“æ™“)
+    voice-short-name: zh-CN-XiaoxiaoNeural
+    codec: audio-24khz-48kbitrate-mono-mp3 # å£°éŸ³ç¼–ç 
+    local: zh-CN # åŒºåŸŸ
+    sentenceBoundaryEnabled: false # å¯ä»¥è¯•è¯•trueæˆ–falseçš„æ•ˆæœ
+    wordBoundaryEnabled: false # å¯ä»¥è¯•è¯•trueæˆ–falseçš„æ•ˆæœ
