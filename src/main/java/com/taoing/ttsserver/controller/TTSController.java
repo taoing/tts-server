@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,11 +24,13 @@ public class TTSController {
 
     /**
      * 合成文本语音
+     * 接口不支持多线程, 因此, 一个key只支持一个用户调用
+     * 可用key: "xxttsa01", "xxttsa02", "xxttsa03"
      * @param response
      * @param param
      */
-    @GetMapping(value = "/synthesisAudio")
-    public void synthesisAudio(HttpServletResponse response, TextTTSReq param) {
+    @PostMapping(value = "/text2Speech")
+    public void text2Speech(HttpServletResponse response, TextTTSReq param) {
         if (log.isDebugEnabled()) {
             log.debug("req: {}", param.toString());
         }

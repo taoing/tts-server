@@ -25,8 +25,8 @@ tts:
     wss-url: wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1 # 语音合成websocket服务
     trusted-client-token: 6A5AA1D4EAFF4E9FB37E23D68491D6F4 # token
     voice-name: Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural) # 默认使用的声音tts(微软晓晓)
-    voice-short-name: zh-CN-XiaoxiaoNeural
+    voice-short-name: zh-CN-XiaoxiaoNeural # 默认使用的声音tts(微软晓晓简写)
     codec: audio-24khz-48kbitrate-mono-mp3 # 声音编码
     local: zh-CN # 区域
-    sentenceBoundaryEnabled: false # 可以试试true或false的效果
-    wordBoundaryEnabled: false # 可以试试true或false的效果
+    sentenceBoundaryEnabled: false # 可以试试true或false的效果(感知不到差别)
+    wordBoundaryEnabled: false # 可以试试true或false的效果(感知不到差别)

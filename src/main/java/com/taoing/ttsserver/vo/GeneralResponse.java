@@ -16,14 +16,15 @@ public class GeneralResponse<T> {
 
 
     public GeneralResponse() {
-        this.code = "1";
-        this.message = "操作成功";
         this.success = true;
+        this.code = "1";
+        this.message = "请求成功";
     }
 
     public GeneralResponse<T> error(String code, String errorMessage) {
         this.success = false;
         this.code = code;
+        this.message = "请求失败";
         this.errorMessage = errorMessage;
         return this;
     }

@@ -43,23 +43,20 @@
         <appender-ref ref="filelog" />
     </root>
 
-    <logger name="com.taoing" level="DEBUG" />
+<!--    <logger name="com.taoing" level="DEBUG" />-->
+<!--    <logger name="com.taoing.ttsserver.controller" level="DEBUG" />-->
 
     <springProfile name="test">
         <root level="ERROR">
             <appender-ref ref="filelog" />
         </root>
-        <logger name="com.taoing" level="INFO">
-            <appender-ref ref="filelog" />
-        </logger>
+        <logger name="com.taoing" level="INFO" />
     </springProfile>
 
     <springProfile name="pro">
         <root level="ERROR">
             <appender-ref ref="filelog" />
         </root>
-        <logger name="com.taoing" level="INFO">
-            <appender-ref ref="filelog" />
-        </logger>
+        <logger name="com.taoing" level="INFO" />
     </springProfile>
 </configuration>

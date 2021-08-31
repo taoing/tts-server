@@ -2,7 +2,9 @@ package com.taoing.ttsserver.ws;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.Map;
 /**
  * websocket client 管理
  */
+@Slf4j
 @Component
 @Getter
 @Setter
@@ -27,9 +30,6 @@ public class WebSocketManager {
 
     public WebSocketManager() {
         webSocketMap = new HashMap<>();
-        for (String code : AVAILABLE_CODES) {
-            webSocketMap.put(code, null);
-        }
     }
 
     public TTSWebSocket getClient(String code) {
@@ -44,8 +44,9 @@ public class WebSocketManager {
             return null;
         }
         TTSWebSocket webSocket = webSocketMap.get(code);
-        if (webSocket == null) {
+        if (webSocket == null || !webSocket.isAvailable()) {
             webSocket = new TTSWebSocket(code, ttsConfig);
+            webSocketMap.put(code, webSocket);
         }
         return webSocket;
     }

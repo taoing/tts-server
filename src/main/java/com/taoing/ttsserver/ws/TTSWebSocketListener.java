@@ -34,7 +34,12 @@ public class TTSWebSocketListener extends WebSocketListener {
      */
     @Override
     public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-        log.info("onClosed: {}", reason);
+        // 触发onFailure后, 再调用close方法, 也不会再触发该方法
+        log.info("onClosed: {}-{}", code, reason);
+        if (log.isDebugEnabled()) {
+            log.debug("websocket完全关闭: {}", client.toString());
+        }
+        client.setAvailable(false);
     }
 
     /**
@@ -45,42 +50,54 @@ public class TTSWebSocketListener extends WebSocketListener {
      */
     @Override
     public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-        log.info("onClosing: {}", reason);
+        log.info("onClosing: {}-{}", code, reason);
+        if (log.isDebugEnabled()) {
+            log.debug("websocket服务端关闭: {}", client.toString());
+        }
         // 设置websocket不可用, 进一步关闭该websocket以释放资源
         client.setAvailable(false);
     }
 
     @Override
     public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-        // 每发送一次消息收到回复后, 都会触发一次该方法(大概在接收完成后30s). 但websocket可继续使用
-        // 可能意味者本次语音合成调用结束
+        // websocket连接空闲30s后, 服务端主动断开连接, 触发了该方法, 后续该websocket不再可用
+        client.drop();
+
         String message = t.getMessage();
         if (response != null) {
             message += "-" + response.message();
         }
-        log.warn("onFailure: {}", message);
+        log.warn("websocket与服务端中断连接: {}, onFailure: {}", client.toString(), message);
     }
 
     @Override
     public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
-//        log.debug("recv:\n{}", text);
+        if (log.isDebugEnabled()) {
+            log.debug("recv:\n{}", text);
+        }
         String startTag = "turn.start";
         String endTag = "turn.end";
         int startIndex = text.indexOf(startTag);
         int endIndex = text.indexOf(endTag);
         // 生成开始
         if (startIndex != -1) {
-            log.debug("turn.start");
+            if (log.isDebugEnabled()) {
+                log.debug("turn.start");
+            }
         } else if (endIndex != -1) {
             // 生成结束
             client.setSynthesizing(false);
-            log.debug("turn.end");
+            if (log.isDebugEnabled()) {
+                log.debug("turn.end");
+            }
         }
     }
 
     @Override
     public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
-//        log.debug("recv:\n{}", bytes.utf8());
+        if (log.isDebugEnabled()) {
+            log.debug("recv:\n{}", bytes.utf8());
+        }
         // 音频数据流标志头
         String audioTag = "Path:audio\r\n";
         String startTag = "Content-Type:";
@@ -94,7 +111,7 @@ public class TTSWebSocketListener extends WebSocketListener {
             if (client.getMime() == null) {
                 client.setMime(bytes.substring(startIndex + startTag.length(), endIndex).utf8());
             }
-            if (client.getMime().equals("audio/x-wav") && bytes.indexOf("RIFF".getBytes(StandardCharsets.UTF_8)) != -1) {
+            if ("audio/x-wav".equals(client.getMime()) && bytes.indexOf("RIFF".getBytes(StandardCharsets.UTF_8)) != -1) {
                 // 去除WAV文件的文件头，解决播放开头时的杂音
                 audioIndex += 44;
             }
@@ -104,5 +121,8 @@ public class TTSWebSocketListener extends WebSocketListener {
 
     @Override
     public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+        if (log.isDebugEnabled()) {
+            log.debug("微软tts websocket服务已连接: {}", client.toString());
+        }
     }
 }

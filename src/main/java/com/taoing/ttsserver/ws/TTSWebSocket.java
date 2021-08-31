@@ -23,10 +23,9 @@ import java.util.UUID;
 @Setter
 public class TTSWebSocket {
 
-    /**
-     * websocket client
-     */
-    private WebSocket webSocket;
+    private static int serialNum = 1;
+
+    private Integer id;
 
     /**
      * 编码(自定义取值, 用以识别websocket client)
@@ -34,9 +33,9 @@ public class TTSWebSocket {
     private String code;
 
     /**
-     * 上次访问时间戳
+     * websocket client
      */
-    private long lastAccessTimeStamp;
+    private WebSocket webSocket;
 
     /**
      * websocket是否可用
@@ -67,21 +66,34 @@ public class TTSWebSocket {
     }
 
     public TTSWebSocket(String code, TTSConfig ttsConfig) {
-        this.ttsConfig = ttsConfig;
+        this.id = serialNum++;
         this.code = code;
+        this.available = true;
+        this.ttsConfig = ttsConfig;
         this.webSocket = this.createWs();
-        this.lastAccessTimeStamp = System.currentTimeMillis();
     }
 
-    public void initSynthesis() {
+    @Override
+    public String toString() {
+        return "TTSWebSocket{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", available=" + available +
+                ", synthesizing=" + synthesizing +
+                ", mime='" + mime + '\'' +
+                '}';
+    }
+
+    /**
+     * 部分属性初始化
+     */
+    public void init() {
         this.mime = null;
         this.buffer = new Buffer();
-        this.synthesizing = false;
     }
 
     public void send(String originText) {
-        this.initSynthesis();
-
+        this.init();
         String text = Tool.fixTrim(originText);
         // 替换一些会导致不返回数据的特殊字符\p{N}
         /**
@@ -93,12 +105,14 @@ public class TTSWebSocket {
         String temp = text.replaceAll("[\\s\\p{P}\\p{Z}\\p{S}]", "");
         if (temp.length() < 1) {
             // 可识别长度为0
+            this.synthesizing = false;
             return;
         }
         text = this.escapeXmlChar(text);
         text = this.makeSsmlMsg(text);
-        synthesizing = true;
-        webSocket.send(text);
+
+        this.synthesizing = true;
+        this.webSocket.send(text);
     }
 
     /**
@@ -107,36 +121,49 @@ public class TTSWebSocket {
      */
     public void writeAudioStream(HttpServletResponse response) {
         long startTime = System.currentTimeMillis();
-        while (synthesizing) {
+        while (this.synthesizing) {
             try {
                 Thread.sleep(100);
                 long time = System.currentTimeMillis() - startTime;
                 if (time > 30 * 1000) {
                     // 超时30s
-                    synthesizing = false;
+                    this.synthesizing = false;
                 }
             } catch (InterruptedException ex) {
                 log.error("等待合成语音流异常", ex);
             }
         }
 
-        response.setHeader("Content-Type", mime);
         byte[] bytes = buffer.readByteArray();
-        if (bytes.length < 1) {
-            return;
-        }
-        try (OutputStream out = response.getOutputStream()) {
-            out.write(bytes, 0, bytes.length);
-        } catch (IOException ex) {
-            log.error("语音流转储响应流失败: {}", ex.getMessage());
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (bytes.length > 0) {
+            response.setHeader("Content-Type", this.mime);
+            try (OutputStream out = response.getOutputStream()) {
+                out.write(bytes, 0, bytes.length);
+            } catch (IOException ex) {
+                log.error("语音流转储响应流失败: {}", ex.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
         // 释放资源
         this.buffer = null;
     }
 
+    /**
+     * 音频流写入缓存
+     * @param byteString
+     */
     public void writeBuffer(ByteString byteString) {
-        buffer.write(byteString);
+        this.buffer.write(byteString);
+    }
+
+    /**
+     * websocket不可再使用, 丢弃
+     */
+    public void drop() {
+        this.available = false;
+        // 关闭websocket, 释放资源
+        this.webSocket.close(1000, null);
+        this.webSocket = null;
     }
 
     /**
@@ -172,10 +199,18 @@ public class TTSWebSocket {
         return str;
     }
 
+    /**
+     * get uuid
+     * @return
+     */
     private String connectId() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
+    /**
+     * 创建连接服务的websocket
+     * @return
+     */
     private WebSocket createWs() {
         String url = ttsConfig.getWssUrl() + "?TrustedClientToken=" + ttsConfig.getTrustedClientToken() +
                 "&ConnectionId=" + connectId();
@@ -198,6 +233,11 @@ public class TTSWebSocket {
         return webSocket;
     }
 
+    /**
+     * 转义xml特殊字符
+     * @param str
+     * @return
+     */
     private String escapeXmlChar(String str) {
         str = str.replace("&", "&amp;");
         str = str.replace(">", "&gt;");
