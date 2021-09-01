@@ -66,7 +66,7 @@ public class TTSWebSocket {
     }
 
     public TTSWebSocket(String code, TTSConfig ttsConfig) {
-        this.id = serialNum++;
+        this.id = this.getSerialNum();
         this.code = code;
         this.available = true;
         this.ttsConfig = ttsConfig;
@@ -243,5 +243,13 @@ public class TTSWebSocket {
         str = str.replace(">", "&gt;");
         str = str.replace("<", "&lt;");
         return str;
+    }
+
+    private int getSerialNum() {
+        int n = serialNum++;
+        if (serialNum == Integer.MAX_VALUE) {
+            serialNum = 1;
+        }
+        return n;
     }
 }
